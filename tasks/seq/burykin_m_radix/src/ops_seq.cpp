@@ -55,7 +55,7 @@ bool burykin_m_radix_seq::RadixSequential::RunImpl() {
     return true;
   }
 
-  std::vector<int> a = std::move(input_);
+  std::vector<int> a = input_;
   std::vector<int> b(a.size());
 
   for (int shift = 0; shift < 32; shift += 8) {

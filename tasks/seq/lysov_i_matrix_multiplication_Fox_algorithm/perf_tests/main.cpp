@@ -27,8 +27,8 @@ std::vector<double> GetRandomMatrix(size_t size, int min_gen_value, int max_gen_
 }  // namespace lysov_i_matrix_multiplication_fox_algorithm_seq
 TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_pipeline_run) {
   // Create data
-  size_t n = 512;
-  size_t block_size = 128;
+  size_t n = 800;
+  size_t block_size = 30;
   int min_gen_value = -1e3;
   int max_gen_value = 1e3;
   std::vector<double> a =
@@ -71,8 +71,8 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_pipeline_run) {
 }
 
 TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_task_run) {
-  size_t n = 400;
-  size_t block_size = 100;
+  size_t n = 800;
+  size_t block_size = 30;
   int min_gen_value = -1e3;
   int max_gen_value = 1e3;
   std::vector<double> a =

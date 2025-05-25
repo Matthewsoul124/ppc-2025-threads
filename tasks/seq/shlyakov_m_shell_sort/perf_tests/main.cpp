@@ -49,7 +49,7 @@ bool IsSorted(const std::vector<int>& arr) {
 }  // namespace
 
 TEST(shlyakov_m_shell_sort_seq, test_pipeline_run) {
-  constexpr size_t kCount = 50000;
+  constexpr size_t kCount = 100000;
 
   std::vector<int> in = GenerateRandomArray(kCount);
   std::vector<int> expected = in;
@@ -65,7 +65,7 @@ TEST(shlyakov_m_shell_sort_seq, test_pipeline_run) {
   auto test_task_sequential = std::make_shared<shlyakov_m_shell_sort_seq::TestTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 5;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -83,7 +83,7 @@ TEST(shlyakov_m_shell_sort_seq, test_pipeline_run) {
 }
 
 TEST(shlyakov_m_shell_sort_seq, test_task_run) {
-  constexpr size_t kCount = 50000;
+  constexpr size_t kCount = 100000;
 
   std::vector<int> in = GenerateRandomArray(kCount);
   std::vector<int> expected = in;

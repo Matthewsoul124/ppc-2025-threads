@@ -55,7 +55,7 @@ TEST(karaseva_e_congrad_seq, test_pipeline_run) {
 }
 
 TEST(karaseva_e_congrad_seq, test_task_run) {
-  constexpr int kSize = 12000;
+  constexpr int kSize = 10000;
 
   // Create matrix a (identity matrix) and vector b (all ones)
   std::vector<double> a(kSize * kSize, 0.0);

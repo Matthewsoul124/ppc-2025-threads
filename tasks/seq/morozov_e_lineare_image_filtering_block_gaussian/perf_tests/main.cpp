@@ -17,7 +17,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_seq, test_pipeline_run) {
   std::vector<double> image_res(n * m);
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<> distrib(0.0, 100.0);
+  std::uniform_real_distribution<> distrib(0.0, 255.0);
 
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < m; j++) {

@@ -11,15 +11,21 @@
 #include "seq/titov_s_ImageFilter_HorizGaussian3x3/include/ops_seq.hpp"
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_pipeline_run) {
-  constexpr size_t kWidth = 8000;
-  constexpr size_t kHeight = 8000;
+  constexpr size_t kWidth = 9000;
+  constexpr size_t kHeight = 9000;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
   std::vector<double> output_image(kWidth * kHeight, 0.0);
+  std::vector<double> expected(kWidth * kHeight, 0.0);
   std::vector<int> kernel = {1, 2, 1};
 
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
-      input_image[(i * kWidth) + j] = static_cast<double>(j) / (kWidth - 1) * 255.0;
+      input_image[(i * kWidth) + j] = (j % 3 == 0) ? 100.0 : 0.0;
+      if (j == kWidth - 1) {
+        expected[(i * kWidth) + j] = 0.0;
+      } else {
+        expected[(i * kWidth) + j] = (j % 3 == 0) ? 50.0 : 25.0;
+      }
     }
   }
 
@@ -51,18 +57,30 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  for (size_t i = 0; i < kHeight; ++i) {
+    for (size_t j = 0; j < kWidth; ++j) {
+      ASSERT_NEAR(output_image[(i * kWidth) + j], expected[(i * kWidth) + j], 1e-6);
+    }
+  }
 }
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_task_run) {
-  constexpr size_t kWidth = 20000;
-  constexpr size_t kHeight = 20000;
+  constexpr size_t kWidth = 9000;
+  constexpr size_t kHeight = 9000;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
   std::vector<double> output_image(kWidth * kHeight, 0.0);
+  std::vector<double> expected(kWidth * kHeight, 0.0);
   std::vector<int> kernel = {1, 2, 1};
 
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
-      input_image[(i * kWidth) + j] = static_cast<double>(j) / (kWidth - 1) * 255.0;
+      input_image[(i * kWidth) + j] = (j % 3 == 0) ? 100.0 : 0.0;
+      if (j == kWidth - 1) {
+        expected[(i * kWidth) + j] = 0.0;
+      } else {
+        expected[(i * kWidth) + j] = (j % 3 == 0) ? 50.0 : 25.0;
+      }
     }
   }
 
@@ -94,4 +112,10 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  for (size_t i = 0; i < kHeight; ++i) {
+    for (size_t j = 0; j < kWidth; ++j) {
+      ASSERT_NEAR(output_image[(i * kWidth) + j], expected[(i * kWidth) + j], 1e-6);
+    }
+  }
 }

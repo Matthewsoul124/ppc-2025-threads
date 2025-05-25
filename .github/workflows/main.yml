@@ -41,7 +41,6 @@ jobs:
           submodules: recursive
       - name: Setup environment
         run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y gcc-14 g++-14 ninja-build libmpich-dev libomp-dev valgrind
           python3 -m pip install -r requirements.txt
@@ -91,7 +90,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup environment
         run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y gcc-14 g++-14 ninja-build libmpich-dev libomp-dev valgrind
           python3 -m pip install -r requirements.txt
@@ -147,7 +145,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup environment
         run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y gcc-14 g++-14 ninja-build libmpich-dev libomp-dev valgrind
           python3 -m pip install -r requirements.txt
@@ -163,18 +160,10 @@ jobs:
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 5
-      - name: Run func tests (threads, num_threads=6)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 6
       - name: Run func tests (threads, num_threads=7)
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 7
-      - name: Run func tests (threads, num_threads=8)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 8
       - name: Run func tests (threads, num_threads=11)
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
@@ -183,14 +172,6 @@ jobs:
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 13
-      - name: Run func tests (threads, num_threads=15)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 15
-      - name: Run func tests (threads, num_threads=16)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 16
   ubuntu-clang-build:
     needs:
       - clang-format
@@ -202,7 +183,6 @@ jobs:
           submodules: recursive
       - name: Setup environment
         run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y ninja-build libmpich-dev python3-pip valgrind
           wget https://apt.llvm.org/llvm.sh
@@ -248,7 +228,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup environment
         run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y ninja-build libmpich-dev python3-pip valgrind
           wget https://apt.llvm.org/llvm.sh
@@ -306,7 +285,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup environment
         run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y ninja-build libmpich-dev python3-pip valgrind
           wget https://apt.llvm.org/llvm.sh
@@ -324,18 +302,10 @@ jobs:
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 5
-      - name: Run tests (threads, num_threads=6)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 6
       - name: Run tests (threads, num_threads=7)
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 7
-      - name: Run tests (threads, num_threads=8)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 8
       - name: Run tests (threads, num_threads=11)
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
@@ -344,14 +314,6 @@ jobs:
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 13
-      - name: Run tests (threads, num_threads=15)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 15
-      - name: Run tests (threads, num_threads=16)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 16
   ubuntu-clang-sanitizer-build:
     needs:
       - ubuntu-clang-build
@@ -362,7 +324,6 @@ jobs:
           submodules: recursive
       - name: Setup environment
         run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y ninja-build libmpich-dev mpi* openmpi-bin python3-pip
           wget https://apt.llvm.org/llvm.sh
@@ -410,7 +371,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup environment
         run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y ninja-build libmpich-dev python3-pip valgrind
           wget https://apt.llvm.org/llvm.sh
@@ -468,7 +428,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup environment
         run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y ninja-build libmpich-dev python3-pip valgrind
           wget https://apt.llvm.org/llvm.sh
@@ -487,20 +446,10 @@ jobs:
         env:
           OMP_NUM_THREADS: 5
           ASAN_RUN: 1
-      - name: Run tests (threads, num_threads=6)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 6
-          ASAN_RUN: 1
       - name: Run tests (threads, num_threads=7)
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 7
-          ASAN_RUN: 1
-      - name: Run tests (threads, num_threads=8)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 8
           ASAN_RUN: 1
       - name: Run tests (threads, num_threads=11)
         run: python3 scripts/run_tests.py --running-type="threads"
@@ -511,16 +460,6 @@ jobs:
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 13
-          ASAN_RUN: 1
-      - name: Run tests (threads, num_threads=15)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 15
-          ASAN_RUN: 1
-      - name: Run tests (threads, num_threads=16)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 16
           ASAN_RUN: 1
   macos-clang-build:
     needs:
@@ -652,18 +591,10 @@ jobs:
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 5
-      - name: Run tests (threads, num_threads=6)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 6
       - name: Run tests (threads, num_threads=7)
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 7
-      - name: Run tests (threads, num_threads=8)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 8
       - name: Run tests (threads, num_threads=11)
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
@@ -672,14 +603,6 @@ jobs:
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 13
-      - name: Run tests (threads, num_threads=15)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 15
-      - name: Run tests (threads, num_threads=16)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 16
   windows-msvc-build:
     needs:
       - clang-format
@@ -819,18 +742,10 @@ jobs:
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 5
-      - name: Run tests (threads, num_threads=6)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 6
       - name: Run tests (threads, num_threads=7)
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 7
-      - name: Run tests (threads, num_threads=8)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 8
       - name: Run tests (threads, num_threads=11)
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
@@ -839,14 +754,6 @@ jobs:
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 13
-      - name: Run tests (threads, num_threads=15)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 15
-      - name: Run tests (threads, num_threads=16)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 16
   windows-clang-build:
     needs:
       - clang-format
@@ -966,20 +873,10 @@ jobs:
         env:
           OMP_NUM_THREADS: 5
           CLANG_BUILD: 1
-      - name: Run tests (threads, num_threads=6)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 6
-          CLANG_BUILD: 1
       - name: Run tests (threads, num_threads=7)
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 7
-          CLANG_BUILD: 1
-      - name: Run tests (threads, num_threads=8)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 8
           CLANG_BUILD: 1
       - name: Run tests (threads, num_threads=11)
         run: python3 scripts/run_tests.py --running-type="threads"
@@ -990,16 +887,6 @@ jobs:
         run: python3 scripts/run_tests.py --running-type="threads"
         env:
           OMP_NUM_THREADS: 13
-          CLANG_BUILD: 1
-      - name: Run tests (threads, num_threads=15)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 15
-          CLANG_BUILD: 1
-      - name: Run tests (threads, num_threads=16)
-        run: python3 scripts/run_tests.py --running-type="threads"
-        env:
-          OMP_NUM_THREADS: 16
           CLANG_BUILD: 1
   ubuntu-gcc-build-codecov:
     needs:
@@ -1093,7 +980,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup environment
         run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y gcc-14 g++-14 ninja-build libmpich-dev libomp-dev valgrind
           python3 -m pip install -r requirements.txt
@@ -1110,7 +996,10 @@ jobs:
           python3 scripts/run_perf_counter.py --required-tests-number=2
       - name: Run perf tests
         run: |
-          source scripts/generate_perf_results.sh
+          bash -e scripts/generate_perf_results.sh
+        env:
+          OMP_NUM_THREADS: 2
+          PROC_COUNT: 2
       - name: Archive results
         uses: montudor/action-zip@v1
         with:

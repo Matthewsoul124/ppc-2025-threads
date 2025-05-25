@@ -2,6 +2,7 @@ import os
 import subprocess
 import platform
 from pathlib import Path
+import shlex
 
 
 def init_cmd_args():
@@ -50,7 +51,7 @@ class PPCRunner:
     @staticmethod
     def __source_script(script_path):
         if platform.system() == "Windows":
-            return
+            return None
         command = f"bash -c 'source {script_path} && env'"
         result = subprocess.run(command, stdout=subprocess.PIPE, shell=True, text=True)
         if result.returncode == 0:
@@ -112,6 +113,31 @@ class PPCRunner:
         self.__run_exec(f"{self.work_dir / 'core_func_tests'} {self.__get_gtest_settings(1)}")
         self.__run_exec(f"{self.work_dir / 'ref_func_tests'}  {self.__get_gtest_settings(1)}")
 
+    @staticmethod
+    def __get_gtest_test_list(command_str):
+        try:
+            command_with_flag = command_str.strip() + " --gtest_list_tests"
+            output = subprocess.check_output(shlex.split(command_with_flag), stderr=subprocess.STDOUT, text=True)
+
+            result = []
+            current_suite = ""
+            for line in output.splitlines():
+                if not line.strip():
+                    continue
+                if line.startswith("  "):
+                    test_name = line.strip()
+                    result.append(f"{current_suite}.{test_name}")
+                else:
+                    current_suite = line.strip().rstrip('.')
+
+            return result
+        except subprocess.CalledProcessError as e:
+            print("Command line error:", e.output)
+            return []
+        except FileNotFoundError:
+            print("File not found.")
+            return []
+
     def run_processes(self, additional_mpi_args):
         if os.environ.get("CLANG_BUILD") == "1":
             return
@@ -122,16 +148,22 @@ class PPCRunner:
 
         mpi_running = f"{self.mpi_exec} {additional_mpi_args} -np {proc_count}"
         if not os.environ.get("ASAN_RUN"):
-            self.__run_exec(f"{mpi_running} {self.work_dir / 'all_func_tests'} {self.__get_gtest_settings(10)}")
-            self.__run_exec(f"{mpi_running} {self.work_dir / 'mpi_func_tests'} {self.__get_gtest_settings(10)}")
+            all_tests_list = self.__get_gtest_test_list(f"{self.work_dir / 'all_func_tests'}")
+            for test_name in all_tests_list:
+                self.__run_exec(f"{mpi_running} {self.work_dir / 'all_func_tests'} --gtest_filter={test_name} "
+                                f"{self.__get_gtest_settings(10)}")
+
+            mpi_tests_list = self.__get_gtest_test_list(f"{self.work_dir / 'mpi_func_tests'}")
+            for test_name in mpi_tests_list:
+                self.__run_exec(f"{mpi_running} {self.work_dir / 'mpi_func_tests'} --gtest_filter={test_name} "
+                                f"{self.__get_gtest_settings(10)}")
 
     def run_performance(self):
         if not os.environ.get("ASAN_RUN"):
-            mpi_running = ""
-            if platform.system() in ("Linux", "Windows"):
-                mpi_running = f"{self.mpi_exec} -np 4"
-            elif platform.system() == "Darwin":
-                mpi_running = f"{self.mpi_exec} -np 2"
+            proc_count = os.environ.get("PROC_COUNT")
+            if proc_count is None:
+                raise EnvironmentError("Required environment variable 'PROC_COUNT' is not set.")
+            mpi_running = f"{self.mpi_exec} -np {proc_count}"
             self.__run_exec(f"{mpi_running} {self.work_dir / 'all_perf_tests'} {self.__get_gtest_settings(1)}")
             self.__run_exec(f"{mpi_running} {self.work_dir / 'mpi_perf_tests'} {self.__get_gtest_settings(1)}")
 

@@ -5,7 +5,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <functional>
 #include <memory>
+#include <queue>
 #include <utility>
 #include <vector>
 
@@ -40,15 +42,46 @@ std::vector<int> ConvertGraphToData(const std::vector<std::vector<std::pair<size
   }
   return graph_data;
 }
+
+std::vector<int> Dijkstra(const std::vector<std::vector<std::pair<size_t, int>>>& adj_list, size_t start_vertex) {
+  const size_t num_vertices = adj_list.size();
+  std::vector<int> distances(num_vertices, INT_MAX);
+  distances[start_vertex] = 0;
+
+  std::priority_queue<std::pair<int, size_t>, std::vector<std::pair<int, size_t>>, std::greater<>> pq;
+  pq.emplace(0, start_vertex);
+
+  while (!pq.empty()) {
+    size_t u = pq.top().second;
+    int dist_u = pq.top().first;
+    pq.pop();
+
+    if (dist_u > distances[u]) {
+      continue;
+    }
+
+    for (const auto& edge : adj_list[u]) {
+      size_t v = edge.first;
+      int weight = edge.second;
+
+      if (distances[u] != INT_MAX && distances[u] + weight < distances[v]) {
+        distances[v] = distances[u] + weight;
+        pq.emplace(distances[v], v);
+      }
+    }
+  }
+
+  return distances;
+}
 }  // namespace
 
 TEST(muhina_m_dijkstra_seq, test_pipeline_run) {
-  constexpr size_t kNumVertices = 6000;
+  constexpr size_t kNumVertices = 5000;
   size_t start_vertex = 0;
 
   auto adj_list = GenerateLargeGraph(kNumVertices);
   auto graph_data = ConvertGraphToData(adj_list);
-
+  auto expected_distances = Dijkstra(adj_list, start_vertex);
   std::vector<int> distances(kNumVertices, INT_MAX);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -77,15 +110,19 @@ TEST(muhina_m_dijkstra_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  for (size_t i = 0; i < kNumVertices; ++i) {
+    EXPECT_EQ(distances[i], expected_distances[i]);
+  }
 }
 
 TEST(muhina_m_dijkstra_seq, test_task_run) {
-  constexpr size_t kNumVertices = 6000;
+  constexpr size_t kNumVertices = 5000;
   size_t start_vertex = 0;
 
   auto adj_list = GenerateLargeGraph(kNumVertices);
   auto graph_data = ConvertGraphToData(adj_list);
-
+  auto expected_distances = Dijkstra(adj_list, start_vertex);
   std::vector<int> distances(kNumVertices, INT_MAX);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -113,4 +150,8 @@ TEST(muhina_m_dijkstra_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  for (size_t i = 0; i < kNumVertices; ++i) {
+    EXPECT_EQ(distances[i], expected_distances[i]);
+  }
 }

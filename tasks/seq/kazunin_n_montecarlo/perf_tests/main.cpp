@@ -24,7 +24,7 @@ TEST(kazunin_n_montecarlo_seq, test_pipeline_run) {
   const std::size_t n = 10;
   std::array<std::pair<double, double>, n> limits;
   std::ranges::fill(limits, std::make_pair(0.0, 1.0));
-  std::size_t precision = 4200000;
+  std::size_t precision = 4150000;
   const auto f = [](const std::array<double, n> &args) {
     return std::accumulate(args.begin(), args.end(), 1.0,
                            [](const double acc, const double coord) { return acc + (sin(coord) * cos(coord)); });
@@ -57,6 +57,8 @@ TEST(kazunin_n_montecarlo_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_NEAR(out, 4.539, 0.05);
 }
 
 TEST(kazunin_n_montecarlo_seq, test_task_run) {
@@ -65,7 +67,7 @@ TEST(kazunin_n_montecarlo_seq, test_task_run) {
   const std::size_t n = 10;
   std::array<std::pair<double, double>, n> limits;
   std::ranges::fill(limits, std::make_pair(0.0, 1.0));
-  std::size_t precision = 4200000;
+  std::size_t precision = 4150000;
   const auto f = [](const std::array<double, n> &args) {
     return std::accumulate(args.begin(), args.end(), 1.0,
                            [](const double acc, const double coord) { return acc + (sin(coord) * cos(coord)); });
@@ -98,4 +100,6 @@ TEST(kazunin_n_montecarlo_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_NEAR(out, 4.539, 0.05);
 }

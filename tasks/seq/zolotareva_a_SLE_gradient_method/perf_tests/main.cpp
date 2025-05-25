@@ -13,7 +13,7 @@
 void zolotareva_a_sle_gradient_method_seq::GenerateSle(std::vector<double> &a, std::vector<double> &b, int n) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(-10.0, 10.0);
+  std::uniform_real_distribution<double> dist(-100.0, 100.0);
 
   for (int i = 0; i < n; ++i) {
     b[i] = dist(gen);
@@ -30,7 +30,7 @@ void zolotareva_a_sle_gradient_method_seq::GenerateSle(std::vector<double> &a, s
 }
 
 TEST(sequential_zolotareva_a_sle_gradient_method_seq, test_pipeline_run) {
-  const int n = 500;
+  const int n = 1000;
   std::vector<double> a(n * n);
   std::vector<double> b(n);
   std::vector<double> x(n);
@@ -80,7 +80,7 @@ TEST(sequential_zolotareva_a_sle_gradient_method_seq, test_pipeline_run) {
 }
 
 TEST(sequential_zolotareva_a_sle_gradient_method_seq, test_task_run) {
-  const int n = 500;
+  const int n = 1000;
   std::vector<double> a(n * n);
   std::vector<double> b(n);
   std::vector<double> x(n);
