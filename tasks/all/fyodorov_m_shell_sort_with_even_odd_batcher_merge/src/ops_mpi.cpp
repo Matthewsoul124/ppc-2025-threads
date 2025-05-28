@@ -113,9 +113,15 @@ bool TestTaskMPI::RunImpl() {
       std::vector<std::vector<int>> blocks(size);
       for (int i = 0, pos = 0; i < size; ++i) {
         if (sendcounts[i] > 0 && pos + sendcounts[i] <= (int)gathered.size()) {
-          blocks[i] = std::vector<int>(gathered.begin() + pos, gathered.begin() + pos + sendcounts[i]);
+          auto first = gathered.begin() + pos;
+          auto last = first + sendcounts[i];
+          if (first != last) {
+            blocks[i] = std::vector<int>(first, last);
+          } else {
+            blocks[i].clear();
+          }
         } else {
-          blocks[i] = std::vector<int>();
+          blocks[i].clear();
         }
         pos += sendcounts[i];
       }
