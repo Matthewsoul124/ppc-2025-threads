@@ -148,9 +148,9 @@ bool TestTaskMPI::RunImpl() {
 
   // Корректируем размер output_ на всех процессах
   unsigned int output_size = task_data->outputs_count[0];
-  if (output_.size() != output_size) {
-    output_.resize(output_size, 0);
-  }
+
+  // Просто принудительно задаём нужный размер
+  output_.resize(output_size, 0);
 
   if (rank == 0 && !output_.empty()) {
     std::cout << "output_ (first 10): ";
