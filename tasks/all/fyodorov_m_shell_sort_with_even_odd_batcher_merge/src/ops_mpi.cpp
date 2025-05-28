@@ -81,7 +81,11 @@ bool TestTaskMPI::RunImpl() {
       if (i == 0) {
         local_data.assign(input_.begin() + offset, input_.begin() + offset + count);
       } else {
-        world_.send(i, 0, std::vector<int>(input_.begin() + offset, input_.begin() + offset + count));
+        if (count > 0) {
+          world_.send(i, 0, std::vector<int>(input_.begin() + offset, input_.begin() + offset + count));
+        } else {
+          world_.send(i, 0, std::vector<int>());
+        }
       }
       offset += count;
     }
