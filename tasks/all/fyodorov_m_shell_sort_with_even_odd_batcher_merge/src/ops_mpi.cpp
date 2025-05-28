@@ -143,7 +143,7 @@ bool TestTaskMPI::RunImpl() {
     std::cout << std::endl;
     std::vector<std::vector<int>> blocks(size);
     for (int i = 0, pos = 0; i < size; ++i) {
-      if (sendcounts[i] > 0) {
+      if (sendcounts[i] > 0 && pos + sendcounts[i] <= static_cast<int>(gathered.size())) {
         blocks[i] = std::vector<int>(gathered.begin() + pos, gathered.begin() + pos + sendcounts[i]);
       } else {
         blocks[i] = std::vector<int>();
