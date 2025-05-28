@@ -90,7 +90,14 @@ bool TestTaskMPI::RunImpl() {
       offset += count;
     }
   } else {
-    world_.recv(0, 0, local_data);
+    if (local_size > 0) {
+      world_.recv(0, 0, local_data);
+    } else {
+      // Для совместимости: примите пустой вектор во временный объект
+      std::vector<int> dummy;
+      world_.recv(0, 0, dummy);
+      local_data.clear();
+    }
   }
 
   std::cout << "[rank " << rank << "] local_data после распределения (first 10): ";
