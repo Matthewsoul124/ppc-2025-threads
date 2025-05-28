@@ -12,7 +12,7 @@
 #include "tbb/muradov_m_rect_int/include/ops_tbb.hpp"
 
 TEST(muradov_m_rect_int_tbb, test_pipeline_run) {
-  std::size_t iterations = 475;
+  int iterations = 475;
   std::vector<std::pair<double, double>> bounds(3, {-3.0, 3.0});
   double out = 0.0;
 
@@ -50,7 +50,7 @@ TEST(muradov_m_rect_int_tbb, test_pipeline_run) {
 }
 
 TEST(muradov_m_rect_int_tbb, test_task_run) {
-  std::size_t iterations = 475;
+  int iterations = 475;
   std::vector<std::pair<double, double>> bounds(3, {-3.0, 3.0});
   double out = 0.0;
 
