@@ -68,6 +68,7 @@ bool TestTaskMPI::RunImpl() {
   }
 
   std::vector<int> local_data;
+  int local_size = 0;
   if (n > 0) {  // Only proceed if there's data to process
     int local_n = n / size;
     int remainder = n % size;
@@ -79,11 +80,13 @@ bool TestTaskMPI::RunImpl() {
     for (int i = 1; i < size; ++i) {
       displs[i] = displs[i - 1] + sendcounts[i - 1];
     }
-    local_data.resize(sendcounts[rank]);
+    local_size = sendcounts[rank];
+    local_data.resize(local_size);
 
-    if (!input_.empty()) {
-      boost::mpi::scatterv(world, input_, sendcounts, displs, local_data.data(), sendcounts[rank], 0);
-    }
+    // scatterv с защитой
+    int* send_ptr = (rank == 0 && n > 0) ? input_.data() : nullptr;
+    int* recv_ptr = (local_size > 0) ? local_data.data() : nullptr;
+    boost::mpi::scatterv(world, send_ptr, sendcounts, displs, recv_ptr, local_size, 0);
 
     if (!local_data.empty()) {
       ShellSort(local_data);
@@ -99,9 +102,10 @@ bool TestTaskMPI::RunImpl() {
       gathered.resize(n);
     }
 
-    if (!local_data.empty()) {
-      boost::mpi::gatherv(world, local_data.data(), sendcounts[rank], gathered.data(), sendcounts, displs, 0);
-    }
+    // gatherv с защитой
+    int* send_ptr_g = (local_size > 0) ? local_data.data() : nullptr;
+    int* recv_ptr_g = (rank == 0 && n > 0) ? gathered.data() : nullptr;
+    boost::mpi::gatherv(world, send_ptr_g, local_size, recv_ptr_g, sendcounts, displs, 0);
 
     if (rank == 0 && !gathered.empty()) {
       std::cout << "gathered (first 10): ";
