@@ -79,7 +79,11 @@ bool TestTaskMPI::RunImpl() {
     for (int i = 0; i < size; ++i) {
       int count = sendcounts[i];
       if (i == 0) {
-        local_data.assign(input_.begin() + offset, input_.begin() + offset + count);
+        if (count > 0) {
+          local_data.assign(input_.begin() + offset, input_.begin() + offset + count);
+        } else {
+          local_data.clear();
+        }
       } else {
         if (count > 0) {
           world_.send(i, 0, std::vector<int>(input_.begin() + offset, input_.begin() + offset + count));
@@ -93,7 +97,6 @@ bool TestTaskMPI::RunImpl() {
     if (local_size > 0) {
       world_.recv(0, 0, local_data);
     } else {
-      // Для совместимости: примите пустой вектор во временный объект
       std::vector<int> dummy;
       world_.recv(0, 0, dummy);
       local_data.clear();
