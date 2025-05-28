@@ -51,6 +51,10 @@ bool TestTaskMPI::RunImpl() {
   int rank = world.rank();
   int size = world.size();
 
+  // Явная инициализация input_ на всех процессах
+  if (rank != 0) {
+    input_.clear();
+  }
   // Явная синхронизация входных данных на всех процессах
   boost::mpi::broadcast(world, input_, 0);
 
@@ -167,6 +171,7 @@ bool TestTaskMPI::PostProcessingImpl() {
 }
 
 void TestTaskMPI::ShellSort(std::vector<int>& arr) {
+  if (arr.empty()) return;
   int n = static_cast<int>(arr.size());
   std::vector<int> gaps;
   for (int k = 1; (1 << k) - 1 < n; ++k) {
@@ -174,7 +179,6 @@ void TestTaskMPI::ShellSort(std::vector<int>& arr) {
   }
   for (auto it = gaps.rbegin(); it != gaps.rend(); ++it) {
     int gap = *it;
-
 #pragma omp parallel for default(none) shared(arr, n, gap)
     for (int offset = 0; offset < gap; ++offset) {
       for (int i = offset + gap; i < n; i += gap) {
