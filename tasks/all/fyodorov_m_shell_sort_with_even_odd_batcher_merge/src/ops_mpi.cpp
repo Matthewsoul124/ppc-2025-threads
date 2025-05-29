@@ -132,12 +132,15 @@ bool TestTaskMPI::RunImpl() {
         pos += sendcounts[i];
       }
 
-      std::vector<int> merged = blocks[0];  // можно заменить на assign, если потребуется
+      std::vector<int> merged;
+      if (!blocks[0].empty()) {
+          merged = blocks[0];
+      }
       for (int i = 1; i < size; ++i) {
         if (!blocks[i].empty()) {
           std::vector<int> temp(merged.size() + blocks[i].size());
           BatcherMerge(merged, blocks[i], temp);
-          merged.assign(temp.begin(), temp.end());  // <-- безопасное копирование
+          merged.assign(temp.begin(), temp.end());
         }
       }
 
