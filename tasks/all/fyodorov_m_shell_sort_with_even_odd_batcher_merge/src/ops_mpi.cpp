@@ -133,14 +133,15 @@ bool TestTaskMPI::RunImpl() {
       }
 
       std::vector<int> merged;
-      if (!blocks[0].empty()) {
-        merged = blocks[0];
-      }
-      for (int i = 1; i < size; ++i) {
+      for (int i = 0; i < size; ++i) {
         if (!blocks[i].empty()) {
-          std::vector<int> temp(merged.size() + blocks[i].size());
-          BatcherMerge(merged, blocks[i], temp);
-          merged.assign(temp.begin(), temp.end());
+          if (merged.empty()) {
+            merged = blocks[i];
+          } else {
+            std::vector<int> temp(merged.size() + blocks[i].size());
+            BatcherMerge(merged, blocks[i], temp);
+            merged.assign(temp.begin(), temp.end());
+          }
         }
       }
 
