@@ -46,10 +46,11 @@ bool TestTaskMPI::RunImpl() {
   int rank = world.rank();
   int size = world.size();
 
-  // Явно инициализируем векторы перед использованием
-  output_ = std::vector<int>();  // Обнуляем output_, чтобы избежать неопределённого поведения
+  // Явное обнуление output_, чтобы избежать null-dereference при последующих вызовах
+  output_.clear();
+  output_.shrink_to_fit();
 
-  // Синхронизируем входные данные
+  // Синхронизация входных данных
   if (rank != 0) {
     input_.clear();
   }
@@ -77,6 +78,7 @@ bool TestTaskMPI::RunImpl() {
     for (int i = 0; i < remainder; ++i) {
       sendcounts[i]++;
     }
+
     displs[0] = 0;
     for (int i = 1; i < size; ++i) {
       displs[i] = displs[i - 1] + sendcounts[i - 1];
@@ -85,7 +87,6 @@ bool TestTaskMPI::RunImpl() {
     local_size = sendcounts[rank];
     local_data.resize(local_size);
 
-    // Защита от nullptr при вызове scatterv
     int* send_ptr = (rank == 0 && n > 0) ? input_.data() : nullptr;
     int* recv_ptr = (local_size > 0) ? local_data.data() : nullptr;
 
@@ -101,7 +102,6 @@ bool TestTaskMPI::RunImpl() {
       std::cout << std::endl;
     }
 
-    // Собираем результаты обратно на root
     std::vector<int> gathered;
     if (rank == 0) {
       gathered.resize(n);
@@ -123,23 +123,26 @@ bool TestTaskMPI::RunImpl() {
       int pos = 0;
       for (int i = 0; i < size; ++i) {
         if (sendcounts[i] > 0 && pos + sendcounts[i] <= static_cast<int>(gathered.size())) {
-          blocks[i].assign(gathered.begin() + pos, gathered.begin() + pos + sendcounts[i]);
+          auto first = gathered.begin() + pos;
+          auto last = first + sendcounts[i];
+          blocks[i].assign(first, last);  // <-- безопасное копирование
         } else {
           blocks[i].clear();
         }
         pos += sendcounts[i];
       }
 
-      std::vector<int> merged = blocks[0];
+      std::vector<int> merged = blocks[0];  // можно заменить на assign, если потребуется
       for (int i = 1; i < size; ++i) {
         if (!blocks[i].empty()) {
           std::vector<int> temp(merged.size() + blocks[i].size());
           BatcherMerge(merged, blocks[i], temp);
-          merged = std::move(temp);
+          merged.assign(temp.begin(), temp.end());  // <-- безопасное копирование
         }
       }
 
-      output_ = std::move(merged);
+      // Присвоение без копирующего оператора
+      output_.assign(merged.begin(), merged.end());
 
       // Рассылаем результат другим процессам
       for (int dest = 1; dest < size; ++dest) {
