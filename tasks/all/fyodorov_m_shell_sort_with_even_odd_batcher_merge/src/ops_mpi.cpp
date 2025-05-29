@@ -44,6 +44,8 @@ bool TestTaskMPI::PreProcessingImpl() {
 bool TestTaskMPI::ValidationImpl() {
   // Проверяем, что есть хотя бы один вход и один выход
   if (task_data->inputs_count.empty() || task_data->outputs_count.empty()) return false;
+  // Проверяем, что указатели на входные и выходные данные не равны nullptr
+  if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) return false;
   // Не проверяем размер входа/выхода на 0 — это валидный случай для пустого массива
   // Можно добавить дополнительные проверки на типы данных, если требуется
 
