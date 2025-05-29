@@ -41,16 +41,15 @@ bool TestTaskMPI::PreProcessingImpl() {
   return true;
 }
 
-bool TestTaskMPI::ValidationImpl() {
-  return ((task_data->inputs_count[0] == task_data->outputs_count[0]) &&
-          (task_data->outputs.size() == task_data->outputs_count.size()));
-}
-
 bool TestTaskMPI::RunImpl() {
   boost::mpi::communicator world;
   int rank = world.rank();
   int size = world.size();
 
+  // Явно инициализируем векторы перед использованием
+  output_ = std::vector<int>();  // Обнуляем output_, чтобы избежать неопределённого поведения
+
+  // Синхронизируем входные данные
   if (rank != 0) {
     input_.clear();
   }
@@ -59,7 +58,7 @@ bool TestTaskMPI::RunImpl() {
   int n = static_cast<int>(input_.size());
   if (rank == 0) {
     std::cout << "input_ (first 10): ";
-    for (int i = 0; i < std::min(10, (int)input_.size()); ++i) {
+    for (int i = 0; i < std::min(10, n); ++i) {
       std::cout << input_[i] << " ";
     }
     std::cout << std::endl;
@@ -67,33 +66,42 @@ bool TestTaskMPI::RunImpl() {
 
   std::vector<int> local_data;
   int local_size = 0;
+
   if (n > 0) {
     int local_n = n / size;
     int remainder = n % size;
+
     std::vector<int> sendcounts(size, local_n);
     std::vector<int> displs(size, 0);
+
     for (int i = 0; i < remainder; ++i) {
       sendcounts[i]++;
     }
+    displs[0] = 0;
     for (int i = 1; i < size; ++i) {
       displs[i] = displs[i - 1] + sendcounts[i - 1];
     }
+
     local_size = sendcounts[rank];
     local_data.resize(local_size);
 
+    // Защита от nullptr при вызове scatterv
     int* send_ptr = (rank == 0 && n > 0) ? input_.data() : nullptr;
     int* recv_ptr = (local_size > 0) ? local_data.data() : nullptr;
+
     boost::mpi::scatterv(world, send_ptr, sendcounts, displs, recv_ptr, local_size, 0);
 
-    if (!local_data.empty()) {
+    if (local_size > 0) {
       ShellSort(local_data);
+
       std::cout << "rank " << rank << " local_data (first 10): ";
-      for (int i = 0; i < std::min(10, (int)local_data.size()); ++i) {
+      for (int i = 0; i < std::min(10, local_size); ++i) {
         std::cout << local_data[i] << " ";
       }
       std::cout << std::endl;
     }
 
+    // Собираем результаты обратно на root
     std::vector<int> gathered;
     if (rank == 0) {
       gathered.resize(n);
@@ -101,21 +109,21 @@ bool TestTaskMPI::RunImpl() {
 
     int* send_ptr_g = (local_size > 0) ? local_data.data() : nullptr;
     int* recv_ptr_g = (rank == 0 && n > 0) ? gathered.data() : nullptr;
+
     boost::mpi::gatherv(world, send_ptr_g, local_size, recv_ptr_g, sendcounts, displs, 0);
 
-    if (rank == 0 && !gathered.empty()) {
+    if (rank == 0) {
       std::cout << "gathered (first 10): ";
-      for (int i = 0; i < std::min(10, (int)gathered.size()); ++i) {
+      for (int i = 0; i < std::min(10, static_cast<int>(gathered.size())); ++i) {
         std::cout << gathered[i] << " ";
       }
       std::cout << std::endl;
 
       std::vector<std::vector<int>> blocks(size);
-      for (int i = 0, pos = 0; i < size; ++i) {
-        if (sendcounts[i] > 0 && pos < (int)gathered.size() && pos + sendcounts[i] <= (int)gathered.size()) {
-          auto first = gathered.begin() + pos;
-          auto last = first + sendcounts[i];
-          blocks[i] = std::vector<int>(first, last);
+      int pos = 0;
+      for (int i = 0; i < size; ++i) {
+        if (sendcounts[i] > 0 && pos + sendcounts[i] <= static_cast<int>(gathered.size())) {
+          blocks[i].assign(gathered.begin() + pos, gathered.begin() + pos + sendcounts[i]);
         } else {
           blocks[i].clear();
         }
@@ -127,34 +135,34 @@ bool TestTaskMPI::RunImpl() {
         if (!blocks[i].empty()) {
           std::vector<int> temp(merged.size() + blocks[i].size());
           BatcherMerge(merged, blocks[i], temp);
-          merged = temp;
+          merged = std::move(temp);
         }
       }
-      output_ = merged;
 
-      for (int i = 1; i < size; ++i) {
-        if (!output_.empty()) {
-          world.send(i, 0, output_);
-        }
+      output_ = std::move(merged);
+
+      // Рассылаем результат другим процессам
+      for (int dest = 1; dest < size; ++dest) {
+        world.send(dest, 0, output_);
       }
-    } else if (rank != 0) {
+    } else {
       world.recv(0, 0, output_);
     }
   }
 
-  // Корректируем размер output_ на всех процессах
+  // Гарантированно задаём нужный размер output_
   unsigned int output_size = task_data->outputs_count[0];
-
-  // Просто принудительно задаём нужный размер
   output_.resize(output_size, 0);
 
+  // Вывод только если есть данные и это главный процесс
   if (rank == 0 && !output_.empty()) {
     std::cout << "output_ (first 10): ";
-    for (int i = 0; i < std::min(10, (int)output_.size()); ++i) {
+    for (int i = 0; i < std::min(10, static_cast<int>(output_.size())); ++i) {
       std::cout << output_[i] << " ";
     }
     std::cout << std::endl;
   }
+
   return true;
 }
 
