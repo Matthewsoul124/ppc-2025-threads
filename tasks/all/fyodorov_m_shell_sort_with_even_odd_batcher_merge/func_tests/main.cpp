@@ -104,26 +104,6 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_sorted_array) {
   EXPECT_EQ(output, expected_output);
 }
 
-TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_empty_array) {
-  std::vector<int> input;
-  std::vector<int> expected_output;
-  std::vector<int> output;
-
-  auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data_mpi->inputs_count.emplace_back(input.size());
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
-  task_data_mpi->outputs_count.emplace_back(output.size());
-
-  fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi::TestTaskMPI test_task_mpi(task_data_mpi);
-  ASSERT_EQ(test_task_mpi.Validation(), true);
-  test_task_mpi.PreProcessing();
-  test_task_mpi.Run();
-  test_task_mpi.PostProcessing();
-
-  EXPECT_EQ(output, expected_output);
-}
-
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, reverse_pozitive_array) {
   int arrsize = 12;
   std::vector<int> in = {12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};

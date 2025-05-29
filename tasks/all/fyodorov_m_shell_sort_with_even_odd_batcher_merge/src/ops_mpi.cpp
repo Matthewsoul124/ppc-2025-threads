@@ -44,6 +44,10 @@ bool TestTaskMPI::PreProcessingImpl() {
 bool TestTaskMPI::ValidationImpl() {
   // Проверяем, что есть хотя бы один вход и один выход
   if (task_data->inputs_count.empty() || task_data->outputs_count.empty()) return false;
+  // Если один из массивов пустой, а другой нет — это невалидно
+  if ((task_data->inputs_count[0] == 0 && task_data->outputs_count[0] != 0) ||
+      (task_data->inputs_count[0] != 0 && task_data->outputs_count[0] == 0))
+    return false;
   // Если размер входа/выхода больше 0, указатель не должен быть nullptr
   if ((task_data->inputs_count[0] > 0 && task_data->inputs[0] == nullptr) ||
       (task_data->outputs_count[0] > 0 && task_data->outputs[0] == nullptr))
