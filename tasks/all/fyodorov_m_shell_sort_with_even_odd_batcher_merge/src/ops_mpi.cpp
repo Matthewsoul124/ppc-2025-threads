@@ -46,14 +46,12 @@ bool TestTaskMPI::ValidationImpl() {
   if (task_data->inputs_count.empty() || task_data->outputs_count.empty()) return false;
   // Если размер входа/выхода больше 0, указатель не должен быть nullptr
   if ((task_data->inputs_count[0] > 0 && task_data->inputs[0] == nullptr) ||
-      (task_data->outputs_count[0] > 0 && task_data->outputs[0] == nullptr)) return false;
+      (task_data->outputs_count[0] > 0 && task_data->outputs[0] == nullptr))
+    return false;
   // Не проверяем размер входа/выхода на 0 — это валидный случай для пустого массива
   // Можно добавить дополнительные проверки на типы данных, если требуется
 
-  // Если нужно синхронизировать результат между процессами:
-  int valid = 1;
-  boost::mpi::broadcast(world_, valid, 0);
-  return valid != 0;
+  return true;
 }
 
 bool TestTaskMPI::RunImpl() {
