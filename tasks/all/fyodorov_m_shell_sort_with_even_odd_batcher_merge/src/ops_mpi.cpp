@@ -134,7 +134,7 @@ bool TestTaskMPI::RunImpl() {
 
       std::vector<int> merged;
       if (!blocks[0].empty()) {
-          merged = blocks[0];
+        merged = blocks[0];
       }
       for (int i = 1; i < size; ++i) {
         if (!blocks[i].empty()) {
