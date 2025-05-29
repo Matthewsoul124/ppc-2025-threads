@@ -41,6 +41,20 @@ bool TestTaskMPI::PreProcessingImpl() {
   return true;
 }
 
+bool TestTaskMPI::ValidationImpl() {
+  // Проверяем, что есть хотя бы один вход и один выход
+  if (task_data->inputs_count.empty() || task_data->outputs_count.empty()) return false;
+  // Проверяем, что размер входа и выхода больше 0
+  if (task_data->inputs_count[0] == 0 || task_data->outputs_count[0] == 0) return false;
+  // Можно добавить дополнительные проверки на типы данных, если требуется
+
+  // Если нужно синхронизировать результат между процессами:
+  int valid = 1;
+  if (task_data->inputs_count[0] == 0 || task_data->outputs_count[0] == 0) valid = 0;
+  boost::mpi::broadcast(world_, valid, 0);
+  return valid != 0;
+}
+
 bool TestTaskMPI::RunImpl() {
   boost::mpi::communicator world;
   int rank = world.rank();
