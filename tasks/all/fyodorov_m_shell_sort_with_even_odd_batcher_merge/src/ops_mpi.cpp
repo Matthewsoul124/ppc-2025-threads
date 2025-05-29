@@ -51,11 +51,9 @@ bool TestTaskMPI::RunImpl() {
   int rank = world.rank();
   int size = world.size();
 
-  // Явная инициализация input_ на всех процессах
   if (rank != 0) {
     input_.clear();
   }
-  // Явная синхронизация входных данных на всех процессах
   boost::mpi::broadcast(world, input_, 0);
 
   int n = static_cast<int>(input_.size());
@@ -102,7 +100,6 @@ bool TestTaskMPI::RunImpl() {
       gathered.resize(n);
     }
 
-    // gatherv с защитой
     int* send_ptr_g = (local_size > 0) ? local_data.data() : nullptr;
     int* recv_ptr_g = (rank == 0 && n > 0) ? gathered.data() : nullptr;
     boost::mpi::gatherv(world, send_ptr_g, local_size, recv_ptr_g, sendcounts, displs, 0);
