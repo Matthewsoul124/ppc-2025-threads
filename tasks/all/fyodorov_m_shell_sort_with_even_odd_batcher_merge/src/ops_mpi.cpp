@@ -67,7 +67,7 @@ bool TestTaskMPI::RunImpl() {
 
   std::vector<int> local_data;
   int local_size = 0;
-  if (n > 0) {  // Only proceed if there's data to process
+  if (n > 0) {
     int local_n = n / size;
     int remainder = n % size;
     std::vector<int> sendcounts(size, local_n);
@@ -81,7 +81,6 @@ bool TestTaskMPI::RunImpl() {
     local_size = sendcounts[rank];
     local_data.resize(local_size);
 
-    // scatterv с защитой
     int* send_ptr = (rank == 0 && n > 0) ? input_.data() : nullptr;
     int* recv_ptr = (local_size > 0) ? local_data.data() : nullptr;
     boost::mpi::scatterv(world, send_ptr, sendcounts, displs, recv_ptr, local_size, 0);
